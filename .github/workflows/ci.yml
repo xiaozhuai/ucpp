@@ -1,0 +1,105 @@
+name: ci
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    code-style:
+        runs-on: ubuntu-24.04
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    submodules: recursive
+            -   name: Install clang-format-18
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install clang-format-18
+                    sudo ln -s -f /usr/bin/clang-format-18 /usr/bin/clang-format
+                    clang-format --version
+            -   name: Check code style
+                run: |
+                    cmake -B build .
+                    cmake --build build -- check-format
+
+    windows:
+        needs: code-style
+        runs-on: ${{ matrix.runner }}
+        strategy:
+            matrix:
+                runner:
+                    - windows-2019
+                    - windows-2022
+                arch:
+                    - amd64
+                    - x86
+                    - amd64_arm64
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    submodules: recursive
+            -   uses: ilammy/msvc-dev-cmd@v1
+                with:
+                    arch: ${{ matrix.arch }}
+            -   name: Build
+                shell: cmd
+                run: |
+                    cmake -GNinja -B build .
+                    cmake --build build -- all
+            -   name: Test
+                if: ${{ matrix.arch != 'amd64_arm64' }}
+                shell: cmd
+                run: |
+                    cmake --build build -- check
+
+    macos:
+        needs: code-style
+        runs-on: ${{ matrix.runner }}
+        strategy:
+            matrix:
+                runner:
+                    - macos-12
+                    - macos-13
+                    - macos-14
+                arch:
+                    - x86_64
+                    - arm64
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    submodules: recursive
+            -   name: Build
+                run: |
+                    cmake -DCMAKE_OSX_ARCHITECTURES=${{matrix.arch}} -B build .
+                    cmake --build build -- all
+            -   name: Test
+                if: ${{ matrix.runner == 'macos-14' || matrix.arch != 'arm64' }}
+                run: |
+                    cmake --build build -- check
+
+    linux:
+        needs: code-style
+        runs-on: ${{ matrix.runner }}
+        strategy:
+            matrix:
+                runner:
+                    - ubuntu-20.04
+                    - ubuntu-22.04
+                    - ubuntu-24.04
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    submodules: recursive
+            -   name: Build
+                run: |
+                    cmake -B build .
+                    cmake --build build -- all
+            -   name: Test
+                run: |
+                    cmake --build build -- check
