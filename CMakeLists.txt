@@ -39,6 +39,7 @@ if (UCPP_BUILD_TESTS)
         add_test(NAME "${name}" COMMAND "${name}")
     endfunction()
 
+    ucpp_add_test(ucpp_test_countof)
     ucpp_add_test(ucpp_test_finally)
     ucpp_add_test(ucpp_test_format)
     ucpp_add_test(ucpp_test_spin_lock)
