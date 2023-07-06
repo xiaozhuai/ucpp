@@ -43,6 +43,7 @@ if (UCPP_BUILD_TESTS)
     ucpp_add_test(ucpp_test_finally)
     ucpp_add_test(ucpp_test_format)
     ucpp_add_test(ucpp_test_spin_lock)
+    ucpp_add_test(ucpp_test_strings)
     ucpp_add_test(ucpp_test_synchronized)
     ucpp_add_test(ucpp_test_tuple_foreach)
 
