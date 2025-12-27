@@ -87,7 +87,7 @@ if (UCPP_BUILD_TESTS)
 endif ()
 
 if (UCPP_IS_MASTER_PROJECT)
-    find_program(CLANG_FORMAT clang-format)
+    find_program(CLANG_FORMAT clang-format NO_CMAKE_PATH)
     if (CLANG_FORMAT)
         file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS include/*.hpp tests/*.cpp tests/*.hpp)
         add_custom_target(
